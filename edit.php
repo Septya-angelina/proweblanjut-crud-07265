@@ -1,18 +1,29 @@
 <?php
 include "koneksi.php";
 
-if(isset($_POST['simpan'])){
+$id = $_GET['id'];
+
+$data = $conn->prepare("SELECT * FROM barang WHERE id=?");
+$data->execute([$id]);
+$row = $data->fetch();
+
+if(isset($_POST['update'])){
     $nama = $_POST['nama_barang'];
     $jumlah = $_POST['jumlah'];
     $harga = $_POST['harga'];
     $tanggal = $_POST['tanggal_masuk'];
     $kategori = $_POST['kategori'];
 
-$sql = "INSERT INTO barang (nama_barang,jumlah,harga,tanggal_masuk,kategori)
-VALUES (?,?,?,?,?)";
+$sql = "UPDATE barang SET 
+nama_barang=?,
+jumlah=?,
+harga=?,
+tanggal_masuk=?,
+kategori=?
+WHERE id=?";
 
 $stmt = $conn->prepare($sql);
-$stmt->execute([$nama,$jumlah,$harga,$tanggal,$kategori]);
+$stmt->execute([$nama,$jumlah,$harga,$tanggal,$kategori,$id]);
 
 header("Location:index.php");
 }
@@ -21,7 +32,7 @@ header("Location:index.php");
 <!DOCTYPE html>
 <html>
 <head>
-<title>Tambah Barang</title>
+<title>Edit Barang</title>
 
 <style>
 
@@ -98,26 +109,26 @@ input{
 
 <div class="card">
 
-<h2>Tambah Barang</h2>
+<h2>Edit Barang</h2>
 
 <form method="POST">
     <label>Nama Barang</label>
-    <input type="text" name="nama_barang" required>
-
+    <input type="text" name="nama_barang" value="<?= $row['nama_barang']; ?>" required>
+    
     <label>Jumlah</label>
-    <input type="number" name="jumlah" required>
-
+    <input type="number" name="jumlah" value="<?= $row['jumlah']; ?>" required>
+    
     <label>Harga</label>
-    <input type="number" name="harga" required>
-
+    <input type="number" name="harga" value="<?= $row['harga']; ?>" required>
+    
     <label>Tanggal Masuk</label>
-    <input type="date" name="tanggal_masuk" required>
-
+    <input type="date" name="tanggal_masuk" value="<?= $row['tanggal_masuk']; ?>" required>
+    
     <label>Kategori</label>
-    <input type="text" name="kategori" required>
+    <input type="text" name="kategori" value="<?= $row['kategori']; ?>" required>
 
 <div class="form-action">
-    <button type="submit" name="simpan" class="button">Simpan</button>
+    <button type="submit" name="update" class="button">Update</button>
     <a href="index.php" class="back">Kembali</a>
 </div>
 
