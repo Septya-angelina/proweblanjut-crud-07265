@@ -2,6 +2,10 @@
 session_start();
 include "koneksi.php";
 
+if (empty($_SESSION['token'])) {
+    $_SESSION['token'] = bin2hex(random_bytes(32));
+}
+
 if (!empty($_COOKIE["remember_token"])) {
     $token = trim($_COOKIE["remember_token"]);
 
@@ -24,6 +28,11 @@ if (!empty($_COOKIE["remember_token"])) {
 $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    if (!isset($_POST['token']) || $_POST['token'] !== $_SESSION['token']) {
+        die("Akses tidak sah");
+    }
+
     $username = trim($_POST["username"]);
     $password = trim($_POST["password"]);
 
@@ -73,105 +82,112 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
+<title>Login</title>
 
-    <style>
-        body {
-            font-family: Arial;
-            background: #f4f6fb;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+<style>
+body{
+    font-family: Arial;
+    background:#f4f6fb;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
 
-        .box {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            width: 320px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
+.box{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    width:320px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.1);
+}
 
-        h2 {
-            text-align: center;
-            color: #5a78b5;
-        }
+h2{
+    text-align:center;
+    color:#5a78b5;
+}
 
-        .input-group {
-            margin-bottom: 15px;
-        }
+.input-group{
+    margin-bottom:15px;
+}
 
-        .input-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-        }
+.input-group input{
+    width:100%;
+    padding:10px;
+    border:1px solid #ccc;
+    border-radius:6px;
+}
 
-        .remember {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 15px;
-        }
+.remember{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-bottom:15px;
+}
 
-        button {
-            width: 100%;
-            padding: 10px;
-            background: #6c8ecf;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+button{
+    width:100%;
+    padding:10px;
+    background:#6c8ecf;
+    color:white;
+    border:none;
+    border-radius:6px;
+    font-weight:bold;
+    cursor:pointer;
+}
 
-        button:hover {
-            background: #5a78b5;
-        }
+button:hover{
+    background:#5a78b5;
+}
 
-        .error {
-            color: red;
-            text-align: center;
-            margin-bottom: 10px;
-        }
+.error{
+    color:red;
+    text-align:center;
+    margin-bottom:10px;
+}
 
-        .link {
-            text-align: center;
-            margin-top: 10px;
-        }
-    </style>
+.link{
+    text-align:center;
+    margin-top:10px;
+}
+</style>
 </head>
 
 <body>
-    <div class="box">
-        <h2>Login</h2>
 
-        <?php if ($error) : ?>
-            <div class="error"><?= $error; ?></div>
-        <?php endif; ?>
+<div class="box">
+<h2>Login</h2>
 
-        <form method="POST">
-            <div class="input-group">
-                <input type="text" name="username" placeholder="Username" required>
-            </div>
+<?php if ($error): ?>
+<div class="error"><?= htmlspecialchars($error); ?></div>
+<?php endif; ?>
 
-            <div class="input-group">
-                <input type="password" name="password" placeholder="Password" required>
-            </div>
+<form method="POST">
 
-            <div class="remember">
-                <input type="checkbox" name="remember">
-                <label>Ingat Saya</label>
-            </div>
+<input type="hidden" name="token" value="<?= $_SESSION['token']; ?>">
 
-            <button type="submit">Login</button>
-        </form>
+<div class="input-group">
+<input type="text" name="username" placeholder="Username" required>
+</div>
 
-        <div class="link">
-            Belum punya akun? <a href="register.php">Register</a>
-        </div>
-    </div>
+<div class="input-group">
+<input type="password" name="password" placeholder="Password" required>
+</div>
+
+<div class="remember">
+<input type="checkbox" name="remember">
+<label>Ingat Saya</label>
+</div>
+
+<button type="submit">Login</button>
+
+</form>
+
+<div class="link">
+Belum punya akun? <a href="register.php">Register</a>
+</div>
+
+</div>
+
 </body>
 </html>
